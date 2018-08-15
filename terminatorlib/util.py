@@ -26,10 +26,29 @@ import subprocess
 import gi
 
 try:
-    gi.require_version('Gtk','3.0')
+    gi.require_version('Gtk', '3.0')
     from gi.repository import Gtk, Gdk
 except ImportError:
     print('You need Gtk 3.0+ to run Remotinator.')
+    from textwrap import dedent
+    print(dedent(
+        '''
+
+        Install Instructions
+        ====================
+
+        python setup.py install --record=install-files.txt --prefix=$HOME/.local
+
+        python terminator.py
+
+        Uninstall
+        =========
+
+        python setup.py uninstall --manifest=install-files.txt
+
+
+
+        '''))
     sys.exit(1)
 
 # set this to true to enable debugging output
@@ -41,13 +60,15 @@ DEBUGCLASSES = []
 # list of methods to show debugging for. empty list means show all methods
 DEBUGMETHODS = []
 
-def dbg(log = ""):
+
+def dbg(log=""):
     """Print a message if debugging is enabled"""
     if DEBUG:
         stackitem = inspect.stack()[1]
         parent_frame = stackitem[0]
         method = parent_frame.f_code.co_name
-        names, varargs, keywords, local_vars = inspect.getargvalues(parent_frame)
+        names, varargs, keywords, local_vars = inspect.getargvalues(
+            parent_frame)
         try:
             self_name = names[0]
             classname = local_vars[self_name].__class__.__name__
@@ -64,25 +85,28 @@ def dbg(log = ""):
         if DEBUGMETHODS != [] and method not in DEBUGMETHODS:
             return
         try:
-            print("%s::%s: %s%s" % (classname, method, log, extra), file=sys.stderr)
+            sys.stderr.write("%s::%s: %s%s\n" % (classname, method, log, extra))
         except IOError:
             pass
 
-def err(log = ""):
+
+def err(log=""):
     """Print an error message"""
     try:
-        print(log, file=sys.stderr)
+        sys.stderr.write(str(log) + '\n')
     except IOError:
         pass
 
-def gerr(message = None):
+
+def gerr(message=None):
     """Display a graphical error. This should only be used for serious
     errors as it will halt execution"""
 
     dialog = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL,
-            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, message)
+                               Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, message)
     dialog.run()
     dialog.destroy()
+
 
 def has_ancestor(widget, wtype):
     """Walk up the family tree of widget to see if any ancestors are of type"""
@@ -91,6 +115,7 @@ def has_ancestor(widget, wtype):
         if isinstance(widget, wtype):
             return(True)
     return(False)
+
 
 def manual_lookup():
     '''Choose the manual to open based on LANGUAGE'''
@@ -106,6 +131,7 @@ def manual_lookup():
 
     return base_url % target
 
+
 def path_lookup(command):
     '''Find a command in our path'''
     if os.path.isabs(command):
@@ -119,7 +145,7 @@ def path_lookup(command):
 
     try:
         paths = os.environ['PATH'].split(':')
-        if len(paths[0]) == 0: 
+        if len(paths[0]) == 0:
             raise(ValueError)
     except (ValueError, NameError):
         dbg('path_lookup: PATH not set in environment, using fallbacks')
@@ -134,6 +160,7 @@ def path_lookup(command):
             return(target)
 
     dbg('path_lookup: Unable to locate %s' % command)
+
 
 def shell_lookup():
     """Find an appropriate shell for the user"""
@@ -155,6 +182,7 @@ def shell_lookup():
                 return(rshell)
     dbg('shell_lookup: Unable to locate a shell')
 
+
 def widget_pixbuf(widget, maxsize=None):
     """Generate a pixbuf of a widget"""
     # FIXME: Can this be changed from using "import cairo" to "from gi.repository import cairo"?
@@ -172,16 +200,18 @@ def widget_pixbuf(widget, maxsize=None):
     preview_width, preview_height = int(width * factor), int(height * factor)
 
     preview_surface = Gdk.Window.create_similar_surface(window,
-        cairo.CONTENT_COLOR, preview_width, preview_height)
+                                                        cairo.CONTENT_COLOR, preview_width, preview_height)
 
     cairo_context = cairo.Context(preview_surface)
     cairo_context.scale(factor, factor)
     Gdk.cairo_set_source_window(cairo_context, window, 0, 0)
     cairo_context.paint()
 
-    scaledpixbuf = Gdk.pixbuf_get_from_surface(preview_surface, 0, 0, preview_width, preview_height);
-    
+    scaledpixbuf = Gdk.pixbuf_get_from_surface(
+        preview_surface, 0, 0, preview_width, preview_height)
+
     return(scaledpixbuf)
+
 
 def get_config_dir():
     """Expand all the messy nonsense for finding where ~/.config/terminator
@@ -194,11 +224,12 @@ def get_config_dir():
     dbg('Found config dir: %s' % configdir)
     return(os.path.join(configdir, 'terminator'))
 
+
 def dict_diff(reference, working):
     """Examine the values in the supplied working set and return a new dict
     that only contains those values which are different from those in the
     reference dictionary
-    
+
     >>> a = {'foo': 'bar', 'baz': 'bjonk'}
     >>> b = {'foo': 'far', 'baz': 'bjonk'}
     >>> dict_diff(a, b)
@@ -214,6 +245,8 @@ def dict_diff(reference, working):
     return(result)
 
 # Helper functions for directional navigation
+
+
 def get_edge(allocation, direction):
     """Return the edge of the supplied allocation that we will care about for
     directional navigation"""
@@ -231,8 +264,9 @@ def get_edge(allocation, direction):
         p1, p2 = allocation.x, allocation.x + allocation.width
     else:
         raise ValueError('unknown direction %s' % direction)
-    
+
     return(edge, p1, p2)
+
 
 def get_nav_possible(edge, allocation, direction, p1, p2):
     """Check if the supplied allocation is in the right direction of the
@@ -250,6 +284,7 @@ def get_nav_possible(edge, allocation, direction, p1, p2):
     else:
         raise ValueError('Unknown direction: %s' % direction)
 
+
 def get_nav_offset(edge, allocation, direction):
     """Work out how far edge is from a particular point on the allocation
     rectangle, in the given direction"""
@@ -264,6 +299,7 @@ def get_nav_offset(edge, allocation, direction):
     else:
         raise ValueError('Unknown direction: %s' % direction)
 
+
 def get_nav_tiebreak(direction, cursor_x, cursor_y, rect):
     """We have multiple candidate terminals. Pick the closest by cursor
     position"""
@@ -273,6 +309,7 @@ def get_nav_tiebreak(direction, cursor_x, cursor_y, rect):
         return(cursor_x >= rect.x and cursor_x <= (rect.x + rect.width))
     else:
         raise ValueError('Unknown direction: %s' % direction)
+
 
 def enumerate_descendants(parent):
     """Walk all our children and build up a list of containers and
@@ -305,9 +342,10 @@ def enumerate_descendants(parent):
                     terminals.append(descendant)
             containers.append(child)
 
-    dbg('%d containers and %d terminals fall beneath %s' % (len(containers), 
-        len(terminals), parent))
+    dbg('%d containers and %d terminals fall beneath %s' % (len(containers),
+                                                            len(terminals), parent))
     return(containers, terminals)
+
 
 def make_uuid(str_uuid=None):
     """Generate a UUID for an object"""
@@ -315,14 +353,16 @@ def make_uuid(str_uuid=None):
         return uuid.UUID(str_uuid)
     return uuid.uuid4()
 
+
 def inject_uuid(target):
     """Inject a UUID into an existing object"""
     uuid = make_uuid()
-    if not hasattr(target, "uuid") or target.uuid == None:
+    if not hasattr(target, "uuid") or target.uuid is None:
         dbg("Injecting UUID %s into: %s" % (uuid, target))
         target.uuid = uuid
     else:
         dbg("Object already has a UUID: %s" % target)
+
 
 def spawn_new_terminator(cwd, args):
     """Start a new terminator instance with the given arguments"""
@@ -330,14 +370,15 @@ def spawn_new_terminator(cwd, args):
 
     if not os.path.isabs(cmd):
         # Command is not an absolute path. Figure out where we are
-        cmd = os.path.join (cwd, sys.argv[0])
+        cmd = os.path.join(cwd, sys.argv[0])
         if not os.path.isfile(cmd):
             # we weren't started as ./terminator in a path. Give up
             err('Unable to locate Terminator')
             return False
-      
+
     dbg("Spawning: %s" % cmd)
-    subprocess.Popen([cmd]+args)
+    subprocess.Popen([cmd] + list(args))
+
 
 def display_manager():
     """Try to detect which display manager we run under"""

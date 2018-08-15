@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 #    USA
 
 """Terminator by Chris Jones <cmsj@tenshu.net>"""
@@ -30,18 +30,43 @@ except OSError:
 # Check we have simple basics like Gtk+ and a valid $DISPLAY
 try:
     import gi
-    gi.require_version('Gtk','3.0')
+    gi.require_version('Gtk', '3.0')
     # pylint: disable-msg=W0611
     from gi.repository import Gtk, Gdk
 
-    if Gdk.Display.get_default() == None:
-        print('You need to run terminator in an X environment. ' \
+    if Gdk.Display.get_default() is None:
+        print('You need to run terminator in an X environment. '
               'Make sure $DISPLAY is properly set')
+
         sys.exit(1)
 
 except ImportError:
-    print('You need to install the python bindings for ' \
-           'gobject, gtk and pango to run Terminator.')
+    print('ERROR You need to install the python bindings for '
+          'gobject, gtk and pango to run Terminator.')
+
+    from textwrap import dedent
+    print(dedent(
+        '''
+
+        Install Instructions
+        ====================
+
+        sudo apt install python3-gi
+
+        python setup.py install --record=install-files.txt --prefix=$HOME/.local
+
+
+        python terminator.py
+
+        Uninstall
+        =========
+
+        python setup.py uninstall --manifest=install-files.txt
+
+
+
+        '''))
+    raise
     sys.exit(1)
 
 import terminatorlib.optionparse
@@ -56,20 +81,21 @@ if __name__ == '__main__':
     # Environment also needs IBUS_DISABLE_SNOOPER=1, or double chars appear
     # in the receivers.
     username = pwd.getpwuid(os.getuid()).pw_name
-    ibus_running = [p for p in psutil.process_iter() if p.name == 'ibus-daemon' and p.username == username]
+    ibus_running = [p for p in psutil.process_iter(
+    ) if p.name == 'ibus-daemon' and p.username == username]
     ibus_running = len(ibus_running) > 0
     if ibus_running:
-        os.environ['IBUS_DISABLE_SNOOPER']='1'
+        os.environ['IBUS_DISABLE_SNOOPER'] = '1'
 
     dbus_service = None
 
-    dbg ("%s starting up, version %s" % (APP_NAME, APP_VERSION))
-  
+    dbg("%s starting up, version %s" % (APP_NAME, APP_VERSION))
+
     OPTIONS = terminatorlib.optionparse.parse_options()
 
     if OPTIONS.select:
         # launch gui, return selection
-        LAYOUTLAUNCHER=LayoutLauncher()
+        LAYOUTLAUNCHER = LayoutLauncher()
     else:
         # Attempt to import our dbus server. If one exists already we will just
         # connect to that and ask for a new window. If not, we will create one and
@@ -87,17 +113,17 @@ if __name__ == '__main__':
             except ipc.DBusException:
                 dbg('Unable to become master process, operating via DBus')
                 # get rid of the None and True types so dbus can handle them (empty
-                # and 'True' strings are used instead), also arrays are joined 
+                # and 'True' strings are used instead), also arrays are joined
                 # (the -x argument for example)
                 if OPTIONS.working_directory is None:
                     OPTIONS.working_directory = ORIGCWD
                 optionslist = {}
                 for opt, val in list(OPTIONS.__dict__.items()):
-                    if type(val) == type([]):
+                    if isinstance(val, list):
                         val = ' '.join(val)
-                    if val == True:
+                    if val is True:
                         val = 'True'
-                    optionslist[opt] = val and '%s'%val or ''
+                    optionslist[opt] = val and '%s' % val or ''
                 optionslist = dbus.Dictionary(optionslist, signature='ss')
                 if OPTIONS.new_tab:
                     dbg('Requesting a new tab')
@@ -120,7 +146,7 @@ if __name__ == '__main__':
         try:
             dbg('Creating a terminal with layout: %s' % OPTIONS.layout)
             TERMINATOR.create_layout(OPTIONS.layout)
-        except (KeyError,ValueError) as ex:
+        except (KeyError, ValueError) as ex:
             err('layout creation failed, creating a window ("%s")' % ex)
             TERMINATOR.new_window()
         TERMINATOR.layout_done()
@@ -128,7 +154,7 @@ if __name__ == '__main__':
     if OPTIONS.debug >= 2:
         import terminatorlib.debugserver as debugserver
         # pylint: disable-msg=W0611
-        import threading
+        import threading  # NOQA
 
         Gdk.threads_init()
         (DEBUGTHREAD, DEBUGSVR) = debugserver.spawn(locals())
@@ -138,4 +164,3 @@ if __name__ == '__main__':
         Gtk.main()
     except KeyboardInterrupt:
         pass
-

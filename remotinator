@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     command_desc=''
     for command in sorted(COMMANDS.keys()):
-        command_desc += "  %-*s  %s %s\n" % (max([len(x) for x in COMMANDS.keys()]),
+        command_desc += "  %-*s  %s %s\n" % (max([len(x) for x in list(COMMANDS.keys())]),
                                              command,
                                              COMMANDS[command][0] and '*' or ' ',
                                              COMMANDS[command][1])

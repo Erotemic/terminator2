@@ -8,14 +8,14 @@ import string
 
 from gi.repository import Gtk
 
-from version import APP_NAME
-from translation import _
-from encoding import TerminatorEncoding
-from terminator import Terminator
-from util import err, dbg
-from config import Config
-from prefseditor import PrefsEditor
-import plugin
+from .version import APP_NAME
+from .translation import _
+from .encoding import TerminatorEncoding
+from .terminator import Terminator
+from .util import err, dbg
+from .config import Config
+from .prefseditor import PrefsEditor
+from . import plugin
 
 class TerminalPopupMenu(object):
     """Class implementing the Terminal context menu"""
@@ -51,7 +51,7 @@ class TerminalPopupMenu(object):
 
         if url and url[0]:
             dbg("URL matches id: %d" % url[1])
-            if not url[1] in terminal.matches.values():
+            if not url[1] in list(terminal.matches.values()):
                 err("Unknown URL match id: %d" % url[1])
                 dbg("Available matches: %s" % terminal.matches)
 
@@ -63,7 +63,7 @@ class TerminalPopupMenu(object):
             elif url[1] == terminal.matches['voip']:
                 nameopen = _('Ca_ll VoIP address')
                 namecopy = _('_Copy VoIP address')
-            elif url[1] in terminal.matches.values():
+            elif url[1] in list(terminal.matches.values()):
                 # This is a plugin match
                 for pluginname in terminal.matches:
                     if terminal.matches[pluginname] == url[1]:
@@ -228,7 +228,7 @@ class TerminalPopupMenu(object):
 
             for menuitem in menuitems:
                 menu.append(menuitem)
-        except Exception, ex:
+        except Exception as ex:
             err('TerminalPopupMenu::show: %s' % ex)
 
         menu.show_all()

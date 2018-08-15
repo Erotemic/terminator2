@@ -54,14 +54,23 @@ except ImportError:
         NOTE: Installing GTK3.0 is not well defined at the moment
 
         WIP::
-            sudo apt install python-gi
-            sudo apt install python3-gi
-            pip install pgi
+            # sudo apt install python-gi -y
+            # sudo apt install python3-gi -y
+            # pip install pgi
 
+            # conda install -c pkgw-forge gtk3
+            # conda install gtk3
+
+            pip install vext
+            pip install vext.gi
+
+            sudo apt install pkg-config libcairo2-dev gcc python3-dev libgirepository1.0-dev -y
+            pip install gobject PyGObject
+
+
+            conda update -n base conda
             conda install -c pkgw/label/superseded gtk3
-            conda install -c pkgw-forge gtk3
-            conda install gtk3
-
+            conda install -c conda-forge pygobject
             python -c "import gi"
 
         pip install -r requirements.txt -U

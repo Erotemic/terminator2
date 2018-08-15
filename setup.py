@@ -14,11 +14,11 @@ import sys
 import subprocess
 import platform
 
-from terminatorlib.version import APP_NAME, APP_VERSION
+from terminator.terminatorlib.version import APP_NAME, APP_VERSION
 
 PO_DIR = 'po'
 MO_DIR = os.path.join('build', 'mo')
-CSS_DIR = os.path.join('terminatorlib', 'themes')
+CSS_DIR = os.path.join('terminator/terminatorlib', 'themes')
 
 class TerminatorDist(Distribution):
   global_options = Distribution.global_options + [
@@ -220,9 +220,13 @@ setup(name=APP_NAME,
                   ('share/icons/HighContrast/16x16/actions', glob.glob('data/icons/HighContrast/16x16/actions/*.png')),
                   ('share/icons/HighContrast/16x16/status', glob.glob('data/icons/HighContrast/16x16/status/*.png')),
                  ],
-      packages=['terminatorlib', 'terminatorlib.configobj',
-      'terminatorlib.plugins'],
-      package_data={'terminatorlib': ['preferences.glade', 'layoutlauncher.glade']},
+      packages=[
+          'terminator',
+          'terminator.terminatorlib',
+          'terminator.terminatorlib.configobj',
+          'terminator.terminatorlib.plugins'
+      ],
+      package_data={'terminator.terminatorlib': ['preferences.glade', 'layoutlauncher.glade']},
       cmdclass={'build': BuildData, 'install_data': InstallData, 'uninstall': Uninstall, 'test':Test},
       distclass=TerminatorDist
      )

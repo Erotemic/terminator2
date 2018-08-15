@@ -68,9 +68,9 @@ except ImportError:
         python setup.py install --record=install-files.txt --prefix=$HOME/.local
 
         # OLD WAY
+        python -m terminator
         ./terminator
         # NEW WAY (broken)
-        python terminator2.py
 
         Uninstall
         =========

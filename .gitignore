@@ -102,3 +102,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+data/terminator.appdata.xml
+data/terminator.desktop
+install-files.txt
+po/.intltool-merge-cache

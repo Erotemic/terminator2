@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # Terminator by Chris Jones <cmsj@tenshu.net>
 # GPL v2 only
 """terminator.py - class for the master Terminator singleton"""

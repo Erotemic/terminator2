@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim: tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 #
 # Copyright (c) 2009, Emmanuel Bretelle <chantra@debuntu.org>

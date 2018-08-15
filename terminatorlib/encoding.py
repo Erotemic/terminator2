@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #    TerminatorEncoding - charset encoding classes
 #    Copyright (C) 2006-2010  chantra@debuntu.org
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #    Terminator.util - misc utility functions
 #    Copyright (C) 2006-2010  cmsj@tenshu.net
 #

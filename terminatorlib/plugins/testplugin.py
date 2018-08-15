@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import terminatorlib.plugin as plugin
 
 # AVAILABLE must contain a list of all the classes that you want exposed
